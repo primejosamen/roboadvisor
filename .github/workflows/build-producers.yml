@@ -1,0 +1,142 @@
+name: build & deploy producers
+
+on:
+  push:
+    # rebuild any time *any* producer script or the Dockerfile changes
+    paths:
+      - 'services/*.py'
+      - 'docker/Dockerfile.producer'
+      - '.github/workflows/build-producers.yml'
+    branches: [ master ]
+  workflow_dispatch:
+
+jobs:
+  # ────────────────────────────────────────────
+  # 1) BUILD & PUSH
+  # ────────────────────────────────────────────
+  build-push:
+    runs-on: ubuntu-latest
+    environment: production
+    if: github.ref == 'refs/heads/master'
+
+    strategy:
+      matrix:
+        include:
+          - script: finnhub_producer.py
+            tag: finnhub-producer
+          - script: polygon_producer.py
+            tag: polygon-producer
+          - script: polygon_prices_producer.py
+            tag: polygon-prices-producer
+          - script: polygon_snapshot_producer.py
+            tag: polygon-snapshot-producer
+          - script: polygon_dividends_producer.py
+            tag: polygon-dividends-producer
+          - script: polygon_index_summary_producer.py
+            tag: polygon-index-summary-producer
+          - script: genaidocsexplorer.py
+            tag: docs-explorer
+          - script: asyngenaichat.py
+            tag: genai-chat
+
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
+
+      - name: Debug run_id
+        run: echo "Build run ID is ${{ github.run_id }}"
+
+      - name: Azure login (service principal)
+        uses: azure/login@v2
+        with:
+          creds: >-
+            {"clientId":"${{ secrets.AZURE_CLIENT_ID }}",
+             "clientSecret":"${{ secrets.AZURE_SECRET }}",
+             "subscriptionId":"${{ secrets.AZURE_SUBSCRIPTION_ID }}",
+             "tenantId":"${{ secrets.AZURE_TENANT_ID }}"}
+
+      - name: Log in to Docker Hub
+        uses: docker/login-action@v3
+        with:
+          username: ${{ secrets.DOCKER_USERNAME }}
+          password: ${{ secrets.DOCKER_PASSWORD }}
+
+      - name: ACR login
+        uses: azure/docker-login@v2
+        with:
+          login-server: ${{ vars.ACR_LOGIN_SERVER }}
+          username:     ${{ secrets.ACR_USERNAME }}
+          password:     ${{ secrets.ACR_PASSWORD }}
+
+      - name: Build & push ${{ matrix.tag }}
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          file: docker/Dockerfile.producer
+          push: true
+          tags: |
+            ${{ vars.ACR_LOGIN_SERVER }}/${{ matrix.tag }}:${{ github.run_id }}
+            ${{ vars.ACR_LOGIN_SERVER }}/${{ matrix.tag }}:latest
+          build-args: |
+            PRODUCER_SCRIPT=${{ matrix.script }}
+
+    outputs:
+      image_tag: ${{ github.run_id }}
+  # ────────────────────────────────────────────
+  # 2) DEPLOY TO AKS
+  # ────────────────────────────────────────────
+  deploy:
+    needs: build-push
+    runs-on: ubuntu-latest
+    environment: production
+    if: github.ref == 'refs/heads/master'
+
+    steps:
+      - name: Debug run_id
+        run: echo "Deploy run ID is ${{ github.run_id }}"
+
+      - uses: actions/checkout@v4   # only needed if you keep manifests in the repo
+
+      - name: Azure login (service principal)
+        uses: azure/login@v2
+        with:
+          creds: >-
+            {"clientId":"${{ secrets.AZURE_CLIENT_ID }}",
+             "clientSecret":"${{ secrets.AZURE_SECRET }}",
+             "subscriptionId":"${{ secrets.AZURE_SUBSCRIPTION_ID }}",
+             "tenantId":"${{ secrets.AZURE_TENANT_ID }}"}
+
+      - name: Set AKS context
+        uses: azure/aks-set-context@v3
+        with:
+          resource-group: ${{ vars.AKS_RESOURCE_GROUP }}
+          cluster-name:   ${{ vars.AKS_CLUSTER_NAME }}
+
+      - name: Rollout updated images
+        env:
+          REGISTRY: ${{ vars.ACR_LOGIN_SERVER }}
+          RUN_ID: ${{ needs.build-push.outputs.image_tag }}
+        run: |
+          # map <deployment-name>=<image-repo-name>
+          declare -A IMAGE_MAP=(
+            [finnhub]=finnhub-producer
+            [polygon]=polygon-producer
+            [polyprice]=polygon-prices-producer
+            [snapshot]=polygon-snapshot-producer
+            [dividends]=polygon-dividends-producer
+            [idxsum]=polygon-index-summary-producer
+            [docsexplorer]=docs-explorer
+            [genai-chat]=genai-chat
+          )
+
+          for deploy in "${!IMAGE_MAP[@]}"; do
+            image="${IMAGE_MAP[$deploy]}"
+            full="${REGISTRY}/${image}:${RUN_ID}"
+
+            echo "▶ Rolling out ${deploy} → ${full}"
+            # Update image (assumes container name == deployment name)
+            kubectl -n chatbot set image deployment/"${deploy}" "${deploy}"="${full}" --record
+            # Wait for rollout success
+            kubectl -n chatbot rollout status deployment/"${deploy}"
+          done
+        
