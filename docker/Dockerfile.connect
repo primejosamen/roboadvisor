@@ -1,0 +1,16 @@
+FROM confluentinc/cp-kafka-connect:7.4.0
+
+USER root
+
+# 1) Usa microdnf para no tocar el repo de zulu-openjdk
+RUN microdnf install curl tar gzip unzip \
+    && microdnf clean all
+
+# 2) Instala Confluent Hub CLI y el conector completo (incluye deps. de Elasticsearch)
+RUN curl -L https://client.hub.confluent.io/confluent-hub-cli | bash \
+    && mv confluent-hub /usr/local/bin/confluent-hub \
+    && confluent-hub install --no-prompt \
+         confluentinc/kafka-connect-elasticsearch:11.1.9 \
+         --component-dir /usr/share/confluent-hub-components
+
+USER appuser

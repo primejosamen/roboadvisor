@@ -1,0 +1,168 @@
+version: '2'
+services:
+  zookeeper:
+    image: confluentinc/cp-zookeeper:7.4.0
+    ports:
+      - "2181:2181"
+    environment:
+      ZOOKEEPER_CLIENT_PORT: 2181
+
+  kafka:
+    image: confluentinc/cp-kafka:7.4.0
+    depends_on:
+      - zookeeper
+    ports:
+      - "29092:29092"
+    environment:
+      # Conecta a ZK
+      KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
+      # Escucha en todas las interfaces
+      KAFKA_LISTENERS: PLAINTEXT://0.0.0.0:9092,EXTERNAL://0.0.0.0:29092
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: PLAINTEXT:PLAINTEXT,EXTERNAL:PLAINTEXT
+      # Se anuncia a otros servicios (Connect, SR…) como "kafka:9092"
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka:9092,EXTERNAL://127.0.0.1:29092
+      # Listener inter-broker
+      KAFKA_INTER_BROKER_LISTENER_NAME: PLAINTEXT
+      # Para un único nodo
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+      # auto-crea topics si no existen
+      KAFKA_AUTO_CREATE_TOPICS_ENABLE: 'true'
+
+  schema-registry:
+    image: confluentinc/cp-schema-registry:7.4.0
+    depends_on:
+      - kafka
+    ports:
+      - "8081:8081"
+    environment:
+      # Nombre bajo el que el SR se anunciará
+      SCHEMA_REGISTRY_HOST_NAME: schema-registry
+      # Bootstrap para conectarse a Kafka
+      SCHEMA_REGISTRY_KAFKASTORE_BOOTSTRAP_SERVERS: PLAINTEXT://kafka:9092
+      # Escucha en 0.0.0.0:8081
+      SCHEMA_REGISTRY_LISTENERS: http://0.0.0.0:8081
+
+  elasticsearch:
+    image: docker.elastic.co/elasticsearch/elasticsearch:8.6.0
+    environment:
+      - discovery.type=single-node
+      - xpack.security.enabled=false
+    ports:
+      - "9200:9200"
+
+  finnhub-producer:
+    image: python:3.11
+    depends_on:
+      - kafka
+    environment:
+      - FINNHUB_KEY=${FINNHUB_KEY}
+      - KAFKA_BROKER=kafka:9092
+    volumes:
+      - ../services/finnhub_producer.py:/app/finnhub_producer.py:ro
+    command: >
+      sh -c "pip install --no-cache-dir requests confluent-kafka &&
+             python /app/finnhub_producer.py"
+
+  polygon-producer:
+    image: python:3.11
+    depends_on:
+      - kafka
+    environment:
+      - POLYGON_KEY=${POLYGON_KEY}
+      - KAFKA_BROKER=kafka:9092
+      - TICKERS=AAPL,MSFT,TSLA,AMZN,GOOGL,KO,JPM,NVDA,INTC,CVX
+    volumes:
+      - ../services/polygon_producer.py:/app/polygon_producer.py:ro
+    command: >
+      sh -c "pip install --no-cache-dir requests confluent-kafka &&
+             python /app/polygon_producer.py"
+
+  polygon-prices-producer:
+    image: python:3.11
+    depends_on:
+      - kafka
+    dns:
+      - 8.8.8.8
+      - 8.8.4.4
+    environment:
+      - POLYGON_KEY=${POLYGON_KEY}
+      - KAFKA_BROKER=kafka:9092
+      - TICKERS=AAPL,MSFT,TSLA,GOOGL,AMZN,KO,JPM,NVDA,INTC,CVX
+    volumes:
+      - ../services/polygon_prices_producer.py:/app/polygon_prices_producer.py:ro
+    command: >
+      sh -c "pip install --no-cache-dir requests confluent-kafka &&
+             python /app/polygon_prices_producer.py"
+      
+  polygon-snapshot-producer:
+    image: python:3.11
+    depends_on:
+      - kafka
+    environment:
+      - POLYGON_KEY=${POLYGON_KEY}
+      - KAFKA_BROKER=kafka:9092
+      - TICKERS=AAPL,MSFT,TSLA,AMZN,GOOGL,KO,JPM,NVDA,INTC,CVX
+    volumes:
+      - ../services/polygon_snapshot_producer.py:/app/polygon_snapshot_producer.py:ro
+    command: >
+      sh -c "pip install --no-cache-dir requests confluent-kafka && 
+             python /app/polygon_snapshot_producer.py"
+
+  polygon-dividends-producer:
+    image: python:3.11
+    depends_on:
+      - kafka
+    environment:
+      - POLYGON_KEY=${POLYGON_KEY}
+      - KAFKA_BROKER=kafka:9092
+      - TICKERS=AAPL,MSFT,TSLA,AMZN,GOOGL,KO,JPM,NVDA,INTC,CVX
+    volumes:
+      - ../services/polygon_dividends_producer.py:/app/polygon_dividends_producer.py:ro
+    command: >
+      sh -c "pip install --no-cache-dir requests confluent-kafka &&
+             python /app/polygon_dividends_producer.py"
+      
+  polygon-index-summary-producer:
+    image: python:3.11
+    depends_on:
+      - kafka
+    environment:
+      - POLYGON_KEY=${POLYGON_KEY}
+      - KAFKA_BROKER=kafka:9092
+      # Lista de índices que quieras trackear
+      - INDICES=NDX,SPX
+    volumes:
+      - ../services/polygon_index_summary_producer.py:/app/polygon_index_summary_producer.py:ro
+    command: >
+      sh -c "pip install --no-cache-dir requests confluent-kafka &&
+             python /app/polygon_index_summary_producer.py"
+
+  kafka-connect:
+    image: confluentinc/cp-kafka-connect:7.4.0
+    depends_on:
+      - kafka
+      - schema-registry
+      - elasticsearch
+    ports:
+      - "8083:8083"
+    environment:
+
+      CONNECT_CONFIG_STORAGE_REPLICATION_FACTOR: 1
+      CONNECT_OFFSET_STORAGE_REPLICATION_FACTOR: 1
+      CONNECT_STATUS_STORAGE_REPLICATION_FACTOR: 1
+      # Conecta a Kafka (servicio kafka)
+      CONNECT_BOOTSTRAP_SERVERS: kafka:9092
+      # Puerto REST interno
+      CONNECT_REST_PORT: 8083
+      # Cómo se anunciará Connect a los clientes (curl, tu UI…)
+      CONNECT_REST_ADVERTISED_HOST_NAME: localhost
+      CONNECT_GROUP_ID: "docschatbot-connect"
+      CONNECT_CONFIG_STORAGE_TOPIC: _connect-configs
+      CONNECT_OFFSET_STORAGE_TOPIC: _connect-offsets
+      CONNECT_STATUS_STORAGE_TOPIC: _connect-status
+      CONNECT_KEY_CONVERTER: org.apache.kafka.connect.json.JsonConverter
+      CONNECT_VALUE_CONVERTER: org.apache.kafka.connect.json.JsonConverter
+      CONNECT_PLUGIN_PATH: /usr/share/java,/usr/share/java/kafka-connect-elasticsearch
+      CONNECT_ELASTICSEARCH_HOSTS: http://elasticsearch:9200
+    volumes:
+      - ./connect-elasticsearch-plugin:/usr/share/java/kafka-connect-elasticsearch
