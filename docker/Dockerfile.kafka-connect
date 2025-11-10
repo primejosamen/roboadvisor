@@ -1,9 +1,0 @@
-# ─── Build on the exact Confluent version you’re already running ──
-FROM confluentinc/cp-kafka-connect:7.4.0
-
-# Install ES sink plugin that matches CP 7.4
-RUN confluent-hub install --no-prompt \
-      confluentinc/kafka-connect-elasticsearch:14.0.15
-
-# The plugin lives here after installation
-ENV CONNECT_PLUGIN_PATH="/usr/share/java,/usr/share/confluent-hub-components"
