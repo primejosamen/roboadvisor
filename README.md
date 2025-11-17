@@ -14,7 +14,7 @@ This experience typically includes the following features:
    * Create search index on vector embeddings field in Elastic
 
 
-2. **AI-Powered Interaction**: The portal is integrated with a generative AI model (like GPT) that can read, understand, and interact with the content of the documents. Users can ask the chatbot questions related to the document, request summaries, seek clarifications, or ask for specific sections or details. The AI can generate responses based on the content of the documents.
+2. **AI-Powered Interaction**: This architecture integrates a generative AI model (such as GPT) capable of reading, understanding, and interacting with the content of the documents, as well as with real-time stock market information. Users can ask the robo-advisor questions about the document, request summaries, ask for clarifications, and obtain combined insights with stock market values.
    
    Data Inference flow:
 ![Data Inference flow](img/DataInference.jpeg)
