@@ -17,7 +17,7 @@ This experience typically includes the following features:
 2. **AI-Powered Interaction**: This architecture integrates a generative AI model (such as GPT) capable of reading, understanding, and interacting with the content of the documents, as well as with real-time stock market information. Users can ask the robo-advisor questions about the document, request summaries, ask for clarifications, and obtain combined insights with stock market values.
    
    Data Inference flow:
-![Data Inference flow](img/DataInference.jpeg)
+![Data Inference flow](img/diagrama.png)
 
    * Users submits query through chatbot prompt, python microservice receives request on HTTP and generate an event to Kafka topic.
    * Python-Kafka consumer receives chatbot request, query vector store (Elastic) using vector search and pass the information to OpenAI to get an answer.
