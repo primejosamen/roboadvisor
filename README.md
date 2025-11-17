@@ -34,7 +34,7 @@ This experience typically includes the following features:
 It is important to mention that WebStorm was used as the IDE for development, due to personal preference, but the project can be run in any IDE of your choice.
 #### Tools
 * install git to clone the source
-  https://git-scm.com/book/it/v2/Per-Iniziare-Installing-Git
+  
   ```
   yum install git
   ```
