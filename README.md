@@ -47,8 +47,20 @@ It is important to mention that WebStorm was used as the IDE for development, du
   yum install python3
   yum install --assumeyes python3-pip
   ```
-
-
+#### Dokcer
+* docker-compose.yml espera que existan dos claves de API en variables de entorno:
+  ```
+  FINNHUB_KEY=TU_FINNHUB_API_KEY_AQUI
+  POLYGON_KEY=TU_POLYGON_API_KEY_AQUI
+  ```
+* Ir a la carpeta donde está el docker-compose.yml
+  ```
+  cd docker 
+  ```
+ * Levantar los servicios 
+  ```
+  docker compose up -d 
+  ``` 
 ## Run python services
 Navigate to services directory and excute the remaining steps in this section
 
