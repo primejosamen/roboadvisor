@@ -47,7 +47,7 @@ It is important to mention that WebStorm was used as the IDE for development, du
   yum install python3
   yum install --assumeyes python3-pip
   ```
-#### Dokcer
+#### Docker
 * docker-compose.yml espera que existan dos claves de API en variables de entorno:
   ```
   FINNHUB_KEY=TU_FINNHUB_API_KEY_AQUI
@@ -97,32 +97,42 @@ pip3 install pypdf
 Set the env-vars
 
 ```
-export OPENAI_API_KEY=<<OPEN_API_KEY>>
-export ELASTIC_CLOUD=<<ELASTIC_CLOUD_ID>>
-export ELASTIC_CLOUD_PASSWORD=<<ELASTIC_CLOUD_PASSWORD>>
+export OPENAI_API_KEY=OPEN_API_KEY
+export POLYGON_KEY=TU_POLYGON_API_KEY_AQUI
 ```
 Create client.properties file with Confluent connection parameters (this is needed for python services to run)
 ```
-cat > client.properties
-bootstrap.servers=<<confluent_cloud_bootstrap_url>>
-security.protocol=SASL_SSL
-sasl.mechanisms=PLAIN
-sasl.username=<<CCLOUD_API_KEY>>
-sasl.password=<<CCLOUD_API_SECRET>>
-session.timeout.ms=45000
-schema.registry.url=<<confluent_cloud_schema_registry>>
-basic.auth.credentials.source=USER_INFO
-basic.auth.user.info=<<SR_API_KEY>>:<<<<SR_API_SECRET>>
+# point at your local Kafka broker
+bootstrap.servers=127.0.0.1:29092
+
+# we’re not using any security layer on Docker
+security.protocol=PLAINTEXT
+
+# consume from the very beginning of topics
 group.id=genai
 auto.offset.reset=earliest
+
+# point at your local Schema Registry
+schema.registry.url=http://localhost:8081
+
+# no SR auth
+basic.auth.credentials.source=NONE
 ```
-Run the python programs to receive data from UI and integrate with Confluent cloud
+*Run the Python programs to receive data from the user interface, and remember to run a Python script from the console as well. 
+*It is important that before running the script, you export the variables mentioned in each console.
+
 ```
-python3 server.py
+# We run this in Bash before executing each Python script.
+cd services
+export OPENAI_API_KEY=OPEN_API_KEY
+export POLYGON_KEY=TU_POLYGON_API_KEY_AQUI
+
+#Run th scripts
 python3 genaidocsexplorer.py -f client.properties -chatbotreq docs_chatbotreq_v1
 python3 asyngenaichatres.py -f client.properties -chatbotresfinal docs_chatbotres_step_final_v1
 python3 asyngenaichat.py -f client.properties -chatbotreq docs_chatbotreq_v1 -chatbotres docs_chatbotres_step_1 -chatbotresfinal docs_chatbotres_step_final_v1
 ```
+
 ## Run front-end code
 
 Navigate to front-end
