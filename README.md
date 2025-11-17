@@ -1,4 +1,4 @@
-# genai-docsbot
+# Roboadvisor
 
 A chatbot that will use PDF documents to simulate the extraction of information from an enterprise API that stores all investor portfolios. This increases the bot’s knowledge so that, together with real-time international market data obtained from APIs such as Polygon.io, it can combine these datasets and provide the user with a real-time financial advisor that not only knows their personal portfolio but also the current state of the global market.
 
@@ -8,9 +8,8 @@ This experience typically includes the following features:
    
 ![Data Augmentation flow](img/DataAugmentation.jpeg)
    
-   * Users upload financial or account summary documents in PDF format.
-   * The platform processes these documents by splitting them into individual pages and publishing each page's content, along with relevant metadata, to a Confluent Kafka topic.
-   * A fully managed Confluent Flink service then generates vector representations of the document data and publishes these vector embeddings to another Confluent topic.
+   * Users upload financial documents or account summaries in PDF format, which can later be scaled to direct connections with the APIs of companies that store each client’s information..
+   * The platform processes these documents by splitting them into individual pages and publishing the content of each page, along with the relevant metadata, to a Kafka topic..
    * A fully managed Elastic sink connector reads the vector data from the topic and stores the vector embeddings. The documents are now prepared for chatbot queries.
    * Create search index on vector embeddings field in Elastic
 
