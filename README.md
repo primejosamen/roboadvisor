@@ -19,20 +19,19 @@ This experience typically includes the following features:
    Data Inference flow:
 ![Data Inference flow](img/DataInference.jpeg)
 
-   * Users submits query through chatbot prompt, python microservice receives request on HTTP and generate an event to Confluent topic.
+   * Users submits query through chatbot prompt, python microservice receives request on HTTP and generate an event to Kafka topic.
    * Python-Kafka consumer receives chatbot request, query vector store (Elastic) using vector search and pass the information to OpenAI to get an answer.
-   * In the given answer, if there are any reference transactions mentioned, Confluent Flink enrich the answer using real time data from other private data sources.
-   * Once the answer is fully enriched, A Python-Kafka consumer receives the final response from topic and sends to chatbot using websocket.
-   * The final response is sinked to a data store to enable for analytical and auditing use cases.
-   * If the user question is already answered, workflow query the datastore and respond back to the chatbot.
+   * In the response provided, if tickers or benchmark indices are mentioned, the answer is enriched using real-time data from other private data sources..
+   * Once the answer is fully enriched, A Python-Kafka consumer receives the final response from topic and sends to roboadvisor using websocket.
+     
 
-3. **Contextual Understanding**: The chatbot can understand the context of questions in relation to the document's content, making the interaction more meaningful and accurate. It can pull information, generate summaries, and provide insights based on the document's data.
+3. **Contextual Understanding**: The robo-advisor understands the context of the questions in relation to the content of the document and, in turn, combines it with market information if the prompt contains any reference to a stock ticker or market index. This makes the interaction more meaningful and accurate.
 
-## Demo-Video
 
 ## Demo Setup:
 
 ### Prerequisites
+It is important to mention that WebStorm was used as the IDE for development, due to personal preference, but the project can be run in any IDE of your choice.
 #### Tools
 * install git to clone the source
   https://git-scm.com/book/it/v2/Per-Iniziare-Installing-Git
