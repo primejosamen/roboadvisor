@@ -1,6 +1,6 @@
 # genai-docsbot
 
-A web portal that enables a GenAI chatbot experience on PDF documents allows users to interact with their documents through a generative AI-powered chatbot. This kind of portal is particularly useful in scenarios like legal document review, academic research, business reporting, and any other context where interacting with large volumes of text-based information is required.
+A chatbot that will use PDF documents to simulate the extraction of information from an enterprise API that stores all investor portfolios. This increases the bot’s knowledge so that, together with real-time international market data obtained from APIs such as Polygon.io, it can combine these datasets and provide the user with a real-time financial advisor that not only knows their personal portfolio but also the current state of the global market.
 
 This experience typically includes the following features:
 
@@ -50,90 +50,7 @@ This experience typically includes the following features:
   yum install --assumeyes python3-pip
   ```
 
-#### Confluent Cloud
 
-Demo:
-
-You need a working account for Confluent Cloud. Sign-up with Confluent Cloud is very easy and you will get a $400 budget for your first trials for free. If you don't have a working Confluent Cloud account please [Sign-up to Confluent Cloud](https://www.confluent.io/confluent-cloud/tryfree/?utm_campaign=tm.campaigns_cd.Q124_EMEA_Stream-Processing-Essentials&utm_source=marketo&utm_medium=workshop).
-=======
-1. Sign up for a Confluent Cloud account [here](https://www.confluent.io/get-started/).
-1. After verifying your email address, access Confluent Cloud sign-in by navigating [here](https://confluent.cloud).
-1. When provided with the _username_ and _password_ prompts, fill in your credentials.
-
-   > **Note:** If you're logging in for the first time you will see a wizard that will walk you through the some tutorials. Minimize this as you will walk through these steps in this guide.
-
-1. Create Confluent Cloud API keys by following [this](https://registry.terraform.io/providers/confluentinc/confluent/latest/docs/guides/sample-project#summary) guide.
-   > **Note:** This is different than Kafka cluster API keys.
-
-#### Elastic Cloud
-
-1. Sign up for a free Elastic account [here](https://www.elastic.co/cloud).
-
-2. Reset password for `elastic` user in Elastic cloud cluster. Follow the instructions [here](https://www.elastic.co/guide/en/cloud-enterprise/current/ece-password-reset-elastic.html).
-3. Get the elastic cloud id. Follow the instruction [here](https://www.elastic.co/search-labs/tutorials/install-elasticsearch/elastic-cloud).
-   > **Note:** Elastic cloud id and password are needed for python service to connect
-
-# Setup
-
-1. Clone and enter this repository.
-
-   ```bash
-   git clone https://github.com/gopi0518/docschatbot.git
-   cd docschatbot
-   ```
-
-1. Create an `.accounts` file by running the following command.
-
-   ```bash
-   echo "CONFLUENT_CLOUD_EMAIL=add_your_email\nCONFLUENT_CLOUD_PASSWORD=add_your_password\nexport TF_VAR_confluent_cloud_api_key=\"add_your_api_key\"\nexport TF_VAR_confluent_cloud_api_secret=\"add_your_api_secret\"" > .accounts
-
-   ```
-
-   > **Note:** This repo ignores `.accounts` file
-
-1. Update the `.accounts` file for the following variables with your credentials.
-
-   ```bash
-   CONFLUENT_CLOUD_EMAIL=<replace>
-   CONFLUENT_CLOUD_PASSWORD=<replace>
-   export TF_VAR_confluent_cloud_api_key="<replace>"
-   export TF_VAR_confluent_cloud_api_secret="<replace>"
-   ```
-
-1. Navigate to the home directory of the project and run `create_env.sh` script. This bash script copies the content of `.accounts` file into a new file called `.env` and append additional variables to it.
-
-   ```bash
-   ./create_env.sh
-   ```
-
-1. Source `.env` file.
-
-   ```bash
-   source .env
-   ```
-
-   > **Note:** if you don't source `.env` file you'll be prompted to manually provide the values through command line when running Terraform commands.
-## Build your Confluent cloud infrastructure
-1. Navigate to the repo's terraform directory.
-```
-cd terraform
-```
-2. Initialize Terraform within the directory.
-```
-terraform init
-```
-3. Create the Terraform plan.
-```
-terraform plan
-```
-4. Apply the plan to create the infrastructure.
-```
-terraform apply
-```
-5. Write the output of terraform to a JSON file. The setup.sh script will parse the JSON file to update the .env file.
-```
-terraform output -json > ../resources.json
-```
 ## Run python services
 Navigate to services directory and excute the remaining steps in this section
 
