@@ -70,28 +70,34 @@ cd services
 Install python modules
 
 ```
-pip3 install PyPDF2
-pip3 install gcc
-pip3 install confluent-kafka
-pip3 install langchain
-pip3 install fastavro
-pip3 install elasticsearch
-pip3 install langchain_elasticsearch
-pip3 install flask
-pip3 install openai
-pip3 install pyopenssl
-pip3 install --quiet langchain_experimental
-pip3 install flask_socketio
-pip3 install flask_cors
-pip3 install avro-python3
-pip3 install jproperties
-pip3 install langchain_openai
-pip3 install cachetools
-pip3 install authlib
-pip3 install pymongo
-pip3 install websocket-client
-pip3 install pandas
-pip3 install pypdf
+RUN pip install --no-cache-dir \
+    requests \
+    confluent-kafka \
+    PyPDF2 \
+    langchain \
+    langchain_openai \
+    langchain_elasticsearch \
+    langchain_experimental \
+    langchain-text-splitters \
+    fastavro \
+    elasticsearch \
+    flask \
+    flask_socketio \
+    flask_cors \
+    openai \
+    pyopenssl \
+    avro-python3 \
+    jproperties \
+    cachetools \
+    authlib \
+    pymongo \
+    websocket-client \
+    pandas \
+    pypdf \
+    azure-ai-documentintelligence \
+    duckdb \
+    pyarrow \
+    confluent_kafka
 
 ```
 Set the env-vars
@@ -127,7 +133,7 @@ cd services
 export OPENAI_API_KEY=OPEN_API_KEY
 export POLYGON_KEY=TU_POLYGON_API_KEY_AQUI
 
-#Run th scripts
+#Run the scripts
 python3 genaidocsexplorer.py -f client.properties -chatbotreq docs_chatbotreq_v1
 python3 asyngenaichatres.py -f client.properties -chatbotresfinal docs_chatbotres_step_final_v1
 python3 asyngenaichat.py -f client.properties -chatbotreq docs_chatbotreq_v1 -chatbotres docs_chatbotres_step_1 -chatbotresfinal docs_chatbotres_step_final_v1
