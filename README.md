@@ -6,7 +6,7 @@ This experience typically includes the following features:
 
 1. **Data augmentation**:
    
-![Data Augmentation flow](img/DataAugmentation.jpeg)
+![Data Augmentation flow](img/DataAugmentation.png)
    
    * Users upload financial documents or account summaries in PDF format, which can later be scaled to direct connections with the APIs of companies that store each client’s information..
    * The platform processes these documents by splitting them into individual pages and publishing the content of each page, along with the relevant metadata, to a Kafka topic..
