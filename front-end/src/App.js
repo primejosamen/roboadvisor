@@ -1,22 +1,17 @@
+// App.js
 import './index.css';
-import {useState, useEffect} from "react";
+import { useState } from "react";
 import styled from "styled-components";
-import Chatbot from 'react-chatbot-kit'
+import Chatbot from 'react-chatbot-kit';
 import ActionProvider from './ActionProvider';
 import MessageParser from './MessageParser';
 import config from './config';
-import Container from 'react-bootstrap/Container';
-import Row from 'react-bootstrap/Row';
-import Col from 'react-bootstrap/Col';
-import { BrowserRouter as Router, Switch, Route,BrowserRouter,NavLink,Link } from "react-router-dom";
-import Accounts from "./Accounts"
-//import PortalChatbot from "./PortalChatbot";
+import Accounts from "./Accounts";
 import AskDoc from "./AskDoc";
 import UserContext from './user-context';
 import 'react-chatbot-kit/build/main.css';
 import logo from './img.png';
 import './App.css';
-import { io } from 'socket.io-client';
 
 const Tab = styled.button`
   font-size: 14px;
@@ -24,109 +19,146 @@ const Tab = styled.button`
   padding: 10px 60px;
   cursor: pointer;
   opacity: 1;
-  background: #fff2e6;
+  background: transparent;
   border: 0;
   outline: 0;
   ${({ active }) =>
     active &&
     `
-    border-bottom: 2px solid blue;
+    border-bottom: 2px solid var(--color-primary-600);
     opacity: 1;
     font-weight: bold;
   `}
 `;
+
 const ButtonGroup = styled.div`
   display: flex;
+  gap: 0.5rem;
 `;
 
-/*const ButtonGroup = styled.div.attrs({
-  className: 'btn-group-vertical',
-  })`
-  display: flex;
-`;*/
+const types = ["Ask Doc", "Accounts"];
 
-const types = ["Ask Doc","Accounts"];
 function App() {
-const [active, setActive] = useState(types[0]);
-const [value, setValue] = useState("Tim");
-const [showBot, toggleBot] = useState(false);
-const [socketInstance, setSocketInstance] = useState("");
-const [loading, setLoading] = useState(true);
-const [buttonStatus, setButtonStatus] = useState(true);
-const handleClick = () => {
-    if (buttonStatus === false) {
-      setButtonStatus(true);
-    } else {
-      setButtonStatus(false);
-    }
-  };
-const handleChange = async(event) => {
-setValue(event.target.value);
-};
+    const [active, setActive] = useState(types[0]);
+    const [value, setValue] = useState("Tim");
+    const [showBot, toggleBot] = useState(false);
 
+    const handleChange = (event) => {
+        setValue(event.target.value);
+    };
 
-  return (
-    <UserContext.Provider value={{ name: value,role:active }}>
-    <div className="row">
-     <Router>
-    <nav className="navbar navbar-expand-lg">
-    <div className="row align-items-center">
-    <div class="col-1">
-     <a class="navbar-brand" href="#">
-    <img src={logo} width="100" height="100" alt=""/>
-    </a>
-    </div>
-    <div class="col-8">
-    <ButtonGroup>
-                    {types.map((type) => (
-                     <Tab
-                       key={type}
-                       active={active === type}
-                       onClick={() => setActive(type)}>
-                       {type}
-                      </Tab>
-                       ))}
-                   </ButtonGroup>
-    </div>
-    <div class="col-2">
-<label>Login:
-                       <select value={value} onChange={handleChange}>
-                         <option value="John">John</option>
-                         <option value="Gopi">Gopi</option>
-                         <option value="Tim">Tim</option>
-                       </select>
-                       <span class="label">&nbsp; Welcome: {value}</span>
-                   </label>
-        </div>
-        </div>
-        </nav>
-    </Router>
-    <div className="row">
-      {active == "Ask Doc" && <AskDoc /> }
-      {active == "Accounts" && <Accounts /> }
-      </div>
-    <div className="app-chatbot-container">
-        {showBot && (
-          <Chatbot
-            config={config}
-            messageParser={MessageParser}
-            actionProvider={ActionProvider}
-          />
-        )}
-      </div>
-      <button
-        className="app-chatbot-button"
-        onClick={() => toggleBot((prev) => !prev)}
-      >
-        <div>Bot</div>
-        <svg viewBox="0 0 640 512" className="app-chatbot-button-icon">
-          <path d="M192,408h64V360H192ZM576,192H544a95.99975,95.99975,0,0,0-96-96H344V24a24,24,0,0,0-48,0V96H192a95.99975,95.99975,0,0,0-96,96H64a47.99987,47.99987,0,0,0-48,48V368a47.99987,47.99987,0,0,0,48,48H96a95.99975,95.99975,0,0,0,96,96H448a95.99975,95.99975,0,0,0,96-96h32a47.99987,47.99987,0,0,0,48-48V240A47.99987,47.99987,0,0,0,576,192ZM96,368H64V240H96Zm400,48a48.14061,48.14061,0,0,1-48,48H192a48.14061,48.14061,0,0,1-48-48V192a47.99987,47.99987,0,0,1,48-48H448a47.99987,47.99987,0,0,1,48,48Zm80-48H544V240h32ZM240,208a48,48,0,1,0,48,48A47.99612,47.99612,0,0,0,240,208Zm160,0a48,48,0,1,0,48,48A47.99612,47.99612,0,0,0,400,208ZM384,408h64V360H384Zm-96,0h64V360H288Z"></path>
-        </svg>
-      </button>
-      </div>
+    return (
+        <UserContext.Provider value={{ name: value, role: active }}>
+            <div className="dashboard-root">
+                {/* HEADER / NAVBAR */}
+                <header className="dashboard-header">
+                    <nav className="navbar navbar-expand-lg w-100">
+                        <div className="d-flex align-items-center w-100 justify-content-between">
+                            {/* Logo izquierda */}
+                            <div className="d-flex align-items-center gap-2">
+                                <img src={logo} width="64" height="64" alt="Logo" />
+                                <span className="fw-semibold">SkyBot Demo</span>
+                            </div>
 
-</UserContext.Provider>
-  );
+                            {/* Tabs centrales */}
+                            <ButtonGroup>
+                                {types.map((type) => (
+                                    <Tab
+                                        key={type}
+                                        active={active === type}
+                                        onClick={() => setActive(type)}
+                                    >
+                                        {type}
+                                    </Tab>
+                                ))}
+                            </ButtonGroup>
+
+                            {/* Login derecha */}
+                            <div>
+                                <label>
+                                    Login:
+                                    <select value={value} onChange={handleChange}>
+                                        <option value="John">John</option>
+                                        <option value="Gopi">Gopi</option>
+                                        <option value="Tim">Tim</option>
+                                    </select>
+                                    <span className="label">&nbsp; Welcome: {value}</span>
+                                </label>
+                            </div>
+                        </div>
+                    </nav>
+                </header>
+
+                {/* MAIN DASHBOARD */}
+                <main className="dashboard-main">
+                    {/* HERO central (logo + textos, estilo nuevo) */}
+                    <section className="dashboard-hero">
+                        <img
+                            src={logo}
+                            alt="Logo de empresa"
+                            className="dashboard-hero-logo"
+                        />
+                        <div className="dashboard-hero-divider" />
+                        <h1 className="dashboard-hero-title">Asistente Financiero</h1>
+                        <p className="dashboard-hero-subtitle">
+                            Descubre el poder de la IA en las finanzas
+                        </p>
+                    </section>
+
+                    {/* CONTENIDO (AskDoc / Accounts) */}
+                    <section className="dashboard-content">
+                        <div className="dashboard-content-inner">
+                            {active === "Ask Doc" && <AskDoc />}
+                            {active === "Accounts" && <Accounts />}
+                        </div>
+                    </section>
+                </main>
+
+                {/* VENTANA DEL CHAT (estilo nuevo que ya te pasé antes) */}
+                {showBot && (
+                    <div className="chat-financial-window">
+                        <div className="chat-financial-window__header">
+                            <div className="chat-financial-window__header-inner">
+                                <h6 className="chat-financial-window__title">SkyBot</h6>
+                                <div className="chat-financial-window__header-actions">
+                                    <button
+                                        className="chat-financial-icon-btn"
+                                        onClick={() => toggleBot(false)}
+                                        aria-label="Cerrar"
+                                    >
+                                        ✕
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                        <div className="chat-financial-window__body">
+                            <div
+                                id="chat-messages"
+                                className="chat-financial-window__messages"
+                            >
+                                <Chatbot
+                                    config={config}
+                                    messageParser={MessageParser}
+                                    actionProvider={ActionProvider}
+                                />
+                            </div>
+                        </div>
+                    </div>
+                )}
+
+                {/* BOTÓN flotante tipo ChatFinancialBtn */}
+                {!showBot && (
+                    <button
+                        className="chat-financial-btn"
+                        onClick={() => toggleBot(true)}
+                        aria-label="Abrir chat"
+                    >
+                        <span className="chat-financial-btn__icon">🤖</span>
+                    </button>
+                )}
+            </div>
+        </UserContext.Provider>
+    );
 }
 
 export default App;

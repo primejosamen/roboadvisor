@@ -6,9 +6,9 @@ import InitChatbot from './InitChatbot';
 import UserContext from './user-context';
 import WelcomeMessage from './WelcomeChatMessage';
 const config = {
-  botName: "DocsQuery Bot",
+  botName: "",
 
-  initialMessages: [createCustomMessage('Test', 'custom'),createChatBotMessage(`Hi, I am your personalized DocsQuery Agent. What do you want to learn?`,
+  initialMessages: [createCustomMessage('Test', 'custom'),createChatBotMessage(`Hi, I am your personalized  Agent. Do you want to know the status of your portfolios?`,
       {
       widget: "InitChatbot",
     }

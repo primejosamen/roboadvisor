@@ -305,7 +305,7 @@ def start_news_indexer():
         )
         es.add_documents([doc])
         c.commit(m)
-        # print("[News] indexed:", art["headline"][:60])
+        print("[News] indexed:", art["headline"][:60])
 
 def start_prices_indexer():
     conf = {"bootstrap.servers": BROKER,

@@ -410,7 +410,14 @@ def build_retrievers(llm: ChatOpenAI) -> tuple[RetrievalQA, RetrievalQA, Retriev
     # --- stores base --------------------------------------------------
 
     vec_pdf = build_store("docs_chatbotres_v3")   # PDFs / chunks
-    vec_ext = build_store("ext_docs_v1")          # noticias
+    vec_ext = ElasticsearchStore(
+        es_url=ELASTIC_URL,
+        index_name="ext_docs_v1",
+        embedding=EMBEDDINGS,
+        query_field="text",
+        vector_query_field="vector",
+        distance_strategy="COSINE",
+    )
 
     es = build_elasticsearch()
     try:

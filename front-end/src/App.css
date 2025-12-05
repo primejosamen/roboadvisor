@@ -82,3 +82,298 @@
     transform: rotate(360deg);
   }
 }
+/* App.css */
+
+/* Contenedor raíz opcional */
+.page-root {
+  height: 100%;
+  width: 100%;
+}
+
+/* BOTÓN flotante estilo ChatFinancialBtn */
+.chat-financial-btn {
+  position: fixed;
+  bottom: 0.75rem; /* bottom-3 */
+  right: 1rem;     /* right-4 */
+  z-index: 50;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 52px;
+  height: 52px;
+  border-radius: 9999px;
+  cursor: pointer;
+  border: none;
+  background-image: linear-gradient(
+          to bottom right,
+          var(--color-primary-400),
+          var(--color-primary-600)
+  );
+  transform-origin: bottom right;
+  transition: transform 0.2s ease-in-out;
+  position: fixed;
+}
+
+/* Glow alrededor (equivalente al ::before de Tailwind) */
+.chat-financial-btn::before {
+  content: '';
+  position: absolute;
+  inset: -8px;
+  border-radius: 9999px;
+  background-image: linear-gradient(
+          to right,
+          var(--color-primary-500),
+          var(--color-primary-700)
+  );
+  filter: blur(4px);
+  opacity: 0;
+  transition: opacity 0.2s ease-in-out;
+  z-index: -1;
+}
+
+.chat-financial-btn:hover::before {
+  opacity: 0.2;
+}
+
+.chat-financial-btn:active {
+  transform: scale(0.95);
+}
+
+.chat-financial-btn__icon {
+  font-size: 1.4rem;
+  color: #f9fafb; /* text-gray-50 */
+}
+
+/* VENTANA estilo ChatFinancialWindow */
+
+.chat-financial-window {
+  position: fixed;
+  right: 1rem;         /* right-4 */
+  bottom: 0.75rem;     /* bottom-3 */
+  z-index: 100;
+  display: flex;
+  flex-direction: column;
+  border-radius: 1.5rem; /* rounded-3xl */
+  border: 2px solid rgba(59, 130, 246, 0.5); /* border-secondary-500/50 */
+  background: linear-gradient(
+          to bottom right,
+          #fafafa,
+          #f3f3f3,
+          #fafafa
+  );
+  overflow: hidden;
+  width: 520px;
+  max-width: 90vw;
+  height: 600px;
+  transform-origin: bottom right;
+  transition: all 0.3s linear;
+}
+
+/* Si quisieras modo “expandido a full screen”: solo añade esta clase */
+.chat-financial-window--expanded {
+  right: 0;
+  bottom: 0;
+  width: 100vw;
+  height: 100vh;
+  border-radius: 0;
+}
+
+/* HEADER de la ventana */
+
+.chat-financial-window__header {
+  padding: 0.5rem 0;
+  background-color: rgba(107, 114, 128, 0.05); /* bg-gray-500/5 */
+}
+
+.chat-financial-window__header-inner {
+  max-width: 720px;
+  width: 100%;
+  margin: 0 auto;
+  padding: 0 1rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.chat-financial-window__title {
+  font-weight: 700;
+  color: var(--color-primary-600);
+}
+
+.chat-financial-window__header-actions {
+  display: flex;
+  gap: 0.25rem;
+}
+
+/* Icon button simple para cerrar/minimizar */
+.chat-financial-icon-btn {
+  border: none;
+  background: transparent;
+  cursor: pointer;
+  padding: 4px;
+  border-radius: 9999px;
+  font-size: 0.85rem;
+  color: #6b7280;
+  transition: background-color 0.15s ease-in-out;
+}
+
+.chat-financial-icon-btn:hover {
+  background-color: rgba(148, 163, 184, 0.2);
+}
+
+/* BODY */
+
+.chat-financial-window__body {
+  max-width: 720px;
+  width: 100%;
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  flex-grow: 1;
+  position: relative;
+  overflow: hidden;
+}
+
+/* contenedor donde vive react-chatbot-kit */
+.chat-financial-window__messages {
+  padding: 1rem;
+  flex-grow: 1;
+  overflow-y: auto;
+}
+/* Mensajes del BOT: gradiente secundario, borde redondeado, etc. */
+.react-chatbot-kit-chat-bot-message {
+  max-width: 100%;
+  border-radius: 1rem;
+  border-bottom-left-radius: 0.25rem; /* rounded-bl-md */
+  background-image: linear-gradient(
+          to bottom right,
+          var(--color-secondary-500),
+          var(--color-secondary-700)
+  );
+  color: #ffffff;
+  padding: 0.5rem 0.75rem;
+  font-size: 0.875rem;
+}
+
+/* flechita del mensaje del bot */
+.react-chatbot-kit-chat-bot-message-arrow {
+  border-right: 8px solid var(--color-secondary-600);
+}
+
+/* Mensajes del usuario: gris claro / oscuro */
+.react-chatbot-kit-user-chat-message {
+  max-width: 100%;
+  border-radius: 1rem;
+  border-bottom-right-radius: 0.25rem; /* rounded-br-md */
+  background-color: var(--color-gray-200);
+  color: var(--color-gray-600);
+  padding: 0.5rem 0.75rem;
+  font-size: 0.875rem;
+}
+
+/* Contenedor general para que el fondo sea transparente y usemos el de la ventana */
+.react-chatbot-kit-chat-container {
+  box-shadow: none;
+  border-radius: 0;
+  background-color: transparent;
+}
+
+/* Header del chatbot si quieres alinearlo con el diseño */
+.react-chatbot-kit-chat-header {
+  border-radius: 0;
+  background-color: transparent;
+  border-bottom: 1px solid rgba(148, 163, 184, 0.4);
+  color: var(--color-gray-800);
+  font-weight: 600;
+}
+/* ROOT del dashboard: imita el HostBinding del DashboardComponent angular */
+.dashboard-root {
+  min-height: 100vh;
+  min-width: 100vw;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  /* radial gradient tipo bg-radial-[at_50%_120%] from-primary-50 to-[#F3F3F3] */
+  background-image: radial-gradient(
+          circle at 50% 120%,
+          var(--color-primary-50, #eff6ff) 0%,
+          #f3f3f3 80%
+  );
+}
+
+/* Cabecera superior (navbar) */
+.dashboard-header {
+  padding: 0.75rem 1.5rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+/* Deja la navbar clásica pero sin fondo sólido */
+.navbar {
+  width: 100%;
+  min-height: 8vh;
+  border-bottom: 1px solid #bbbbbb80;
+  background: transparent; /* antes tenía color */
+}
+
+/* Contenedor principal del dashboard */
+.dashboard-main {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  padding: 2.5rem 1rem 4rem;
+}
+
+/* Hero central (logo + textos tipo “Asistente Financiero”) */
+.dashboard-hero {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  width: fit-content;
+  margin: 0 auto 2rem auto;
+}
+
+.dashboard-hero-logo {
+  height: 100px;
+  width: auto;
+}
+
+.dashboard-hero-divider {
+  width: 100%;
+  max-width: 320px;
+  height: 1px;
+  margin: 1.25rem 0;
+  background-color: #e5e7eb; /* border-gray-200 */
+}
+
+.dashboard-hero-title {
+  font-size: 2.25rem; /* text-4xl aprox */
+  font-weight: 700;
+  color: #1f2933; /* text-gray-800 */
+  margin-bottom: 0.25rem;
+}
+
+.dashboard-hero-subtitle {
+  font-size: 1.125rem;
+  color: #4b5563; /* text-gray-600 */
+}
+
+/* Zona donde viven AskDoc / Accounts debajo del hero */
+.dashboard-content {
+  display: flex;
+  justify-content: center;
+  align-items: stretch;
+  width: 100%;
+}
+
+/* Para que AskDoc / Accounts no “rompan” el layout y se ajusten al nuevo fondo */
+.dashboard-content-inner {
+  width: 100%;
+  max-width: 1100px;
+  display: flex;
+  gap: 1.5rem;
+  justify-content: center;
+}
